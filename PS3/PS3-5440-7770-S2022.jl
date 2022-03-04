@@ -95,6 +95,12 @@ The calculation for reaction 1 is as follows: </p>
 
 """
 
+# ╔═╡ 99153bf2-a62d-4652-ac20-dd3ca3a78020
+html"""
+There is no observable difference between the flux values in Case 1 and Case 2, likely because the given metabolite data was very limited so only one reaction changed. Furthermore, that one reaction did not change by a significant amount (0.913764 as opposed to 1) so it is reasonable that the flux changed by such a minute amount that it was not observable from the data table above.
+
+"""
+
 # ╔═╡ 70239f9d-1ea8-4ad2-92a3-126cd99de4f0
 md"""
 ### C3: Include dilution but ignore metabolite data in the bounds
@@ -311,82 +317,6 @@ begin
 	df = filter(filter_col_key=>x->in(x,ec_number_array), metabolite_table)
 end
 
-# ╔═╡ 775ab6a4-90bc-4a5e-9614-8c62cb17a909
-begin
-
-	# E - 
-	Eₒ_case2 = 0.01 # units: μmol/gDW
-	u_case2 = ones(6)
-	E_case2 = Eₒ_case2.*u_case2
-	
-	# setup flux bounds array -
-	flux_bounds_array_case2 = zeros(ℛ,2)
-	flux_bounds_array_case2[:,2] .= 100.0 # default value is 100 for flux units: μmol/gDW-s
-	flux_bounds_array_case2[1,2] = 203.0*E[1]*0.913764
-	flux_bounds_array_case2[2,2] = 34.5*E[2]
-	flux_bounds_array_case2[3,2] = 249.0*E[3]
-	flux_bounds_array_case2[4,2] = 88.1*E[4]
-	flux_bounds_array_case2[5,2] = 13.7*E[5]
-	flux_bounds_array_case2[6,2] = 13.7*E[6]
-
-	# O2 uptake -
-	flux_bounds_array_case2[15,1] = 0.25
-
-	# setup species bounds array -
-	species_bounds_array_case2 = zeros(ℳ,2)
-
-	# setup the objective coefficient array -
-	c_vector_case2 = zeros(ℛ)
-
-	# what is the index of the urea flux?
-	idx_b₄_case2 = findall(x->x=="b4", rna)[1]
-	c_vector_case2[idx_b₄_case2] = -1
-
-	# compute the flux -
-	result_case_2 = lib.flux(S,flux_bounds_array_case2,species_bounds_array_case2,c_vector_case2);
-
-	# show -
-	nothing
-end
-
-# ╔═╡ cfd9a373-b1d1-4b5c-ba59-29932886a754
-# check:
-with_terminal() do
-	ef = result_case_2.exit_flag
-	sf = result_case_2.status_flag
-
-	if (ef == 0.0 && sf == 5.0)
-		println("Case 2: Optimal solution found. exit flag = $(ef) and status flag = $(sf)")
-	else
-		println("Case 2: Ooops! Check your problem setup. exit flag = $(ef) and status flag = $(sf)")
-	end
-end
-
-# ╔═╡ b7a8beb3-36f3-4db1-a57c-d8c45b8126c1
-let
-
-	# get flux values from the result -
-	calculated_flux_array_case2 = result_case_2.calculated_flux_array
-
-	# build flux table -
-	flux_table_case2 = Array{Any,2}(undef,ℛ,4)
-
-	# populate -
-	for i ∈ 1:ℛ
-		flux_table_case2[i,1] = i
-		flux_table_case2[i,2] = rna[i]
-		flux_table_case2[i,3] = calculated_flux_array_case2[i]*(1) # units: μmol/gDW-hr
-		flux_table_case2[i,4] = expanded_reaction_array[i]
-	end
-
-	# setup header -
-	header_row = (["i","name","flux","reaction"],["","","μmol/gDW-s",""])
-	
-	with_terminal() do
-		pretty_table(flux_table_case2; header=header_row, alignment=:l)
-	end
-end
-
 # ╔═╡ 34682c11-8139-4e7e-8a8b-bcfafa8ce628
 begin
 
@@ -457,6 +387,95 @@ begin
 				x_concentration_array[i,1] = gmean_x
 			end
 		end
+	end
+end
+
+# ╔═╡ 2e0690de-197c-4b14-a7e5-172151f1234a
+begin
+
+	# setup concentration array -
+	conc_array_case2 = copy(x_concentration_array[:,2])
+	
+	# computation for C3 goes here ...
+	S_case2 = S
+	
+	# show -
+	nothing
+end
+
+# ╔═╡ 775ab6a4-90bc-4a5e-9614-8c62cb17a909
+begin
+
+	# E - 
+	Eₒ_case2 = 0.01 # units: μmol/gDW
+	u_case2 = ones(6)
+	E_case2 = Eₒ_case2.*u_case2
+	
+	# setup flux bounds array -
+	flux_bounds_array_case2 = zeros(ℛ,2)
+	flux_bounds_array_case2[:,2] .= 100.0 # default value is 100 for flux units: μmol/gDW-s
+	flux_bounds_array_case2[1,2] = 203.0*E[1]*0.913764
+	flux_bounds_array_case2[2,2] = 34.5*E[2]
+	flux_bounds_array_case2[3,2] = 249.0*E[3]
+	flux_bounds_array_case2[4,2] = 88.1*E[4]
+	flux_bounds_array_case2[5,2] = 13.7*E[5]
+	flux_bounds_array_case2[6,2] = 13.7*E[6]
+	
+	# O2 uptake -
+	flux_bounds_array_case2[15,1] = 0.25
+
+	# setup species bounds array -
+	species_bounds_array_case2 = zeros(ℳ,2)
+
+	# setup the objective coefficient array -
+	c_vector_case2 = zeros(ℛ)
+
+	# what is the index of the urea flux?
+	idx_b₄_case2 = findall(x->x=="b4", rna)[1]
+	c_vector_case2[idx_b₄_case2] = -1
+
+	# compute the flux -
+	result_case_2 = lib.flux(S_case2,flux_bounds_array_case2,species_bounds_array_case2,c_vector_case2);
+
+	# show -
+	nothing
+end
+
+# ╔═╡ cfd9a373-b1d1-4b5c-ba59-29932886a754
+# check:
+with_terminal() do
+	ef = result_case_2.exit_flag
+	sf = result_case_2.status_flag
+
+	if (ef == 0.0 && sf == 5.0)
+		println("Case 2: Optimal solution found. exit flag = $(ef) and status flag = $(sf)")
+	else
+		println("Case 2: Ooops! Check your problem setup. exit flag = $(ef) and status flag = $(sf)")
+	end
+end
+
+# ╔═╡ b7a8beb3-36f3-4db1-a57c-d8c45b8126c1
+let
+
+	# get flux values from the result -
+	calculated_flux_array_case2 = result_case_2.calculated_flux_array
+
+	# build flux table -
+	flux_table_case2 = Array{Any,2}(undef,ℛ,4)
+
+	# populate -
+	for i ∈ 1:ℛ
+		flux_table_case2[i,1] = i
+		flux_table_case2[i,2] = rna[i]
+		flux_table_case2[i,3] = calculated_flux_array_case2[i]*(1) # units: μmol/gDW-hr
+		flux_table_case2[i,4] = expanded_reaction_array[i]
+	end
+
+	# setup header -
+	header_row = (["i","name","flux","reaction"],["","","μmol/gDW-s",""])
+	
+	with_terminal() do
+		pretty_table(flux_table_case2; header=header_row, alignment=:l)
 	end
 end
 
@@ -1951,6 +1970,7 @@ version = "0.9.1+5"
 # ╠═70d11054-4d8a-4dcc-a8cd-1f762c2dd9b8
 # ╟─12eef416-b3ab-4f03-8ac0-a9783dcca9bd
 # ╠═880ce921-308b-4e3c-8bd9-fb9d07d18bd3
+# ╠═2e0690de-197c-4b14-a7e5-172151f1234a
 # ╟─07ca2450-8a84-4e71-adcf-91b12a1544ee
 # ╟─e2917845-d956-45f0-a379-ea826caf7d88
 # ╠═85e1ac31-90cf-48da-b4d7-b6c009328084
@@ -1958,6 +1978,7 @@ version = "0.9.1+5"
 # ╠═775ab6a4-90bc-4a5e-9614-8c62cb17a909
 # ╠═cfd9a373-b1d1-4b5c-ba59-29932886a754
 # ╠═b7a8beb3-36f3-4db1-a57c-d8c45b8126c1
+# ╠═99153bf2-a62d-4652-ac20-dd3ca3a78020
 # ╟─70239f9d-1ea8-4ad2-92a3-126cd99de4f0
 # ╟─cb7d76b8-85f9-4886-a4f3-3f9fb82e42dc
 # ╟─d3a2474e-f502-4247-bba6-1f7d5f88f12d
