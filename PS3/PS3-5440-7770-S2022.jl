@@ -15,10 +15,7 @@ html"""
 Smith School of Chemical and Biomolecular Engineering, Cornell University, Ithaca NY 14850</p>
 
 <p style="font-size:18px;">Author Contributions</br></br>
-Sarah contributed to </br>
-Kuan contributed to </br>
-Emily contributed to </br>
-We all collaborated together to develop all the solutions.
+We collaborated together to develop the solutions and debug the code.
 </p>
 """
 
@@ -85,14 +82,13 @@ To answer this question, let's take advantage of the features of [DataFrames](ht
 html"""
 We calculated the irreversible rate of all 6 reactions (5 reactions and 1 reaction proceeding in the reverse direction) using the multiple saturation kinetic form of the irreversible rate given above. Only reaction V1 changed from Case 1 by a factor of 0.913764, while the other reactions remained unchanged due to the lack of metabolite reactant data from the Park dataset. </br>
 </p>
-If the reactant metabolite information is not present in the Park dataset, we assume that the irreversible rate is Vmax (so multiplied the rate from Case 1 by 1). </br>
-</p>
 The calculation for reaction 1 is as follows: </p>
 
 	(11.9*96.7)/((1+11.9)*(1+96.7)-1) = 0.913764 </br>
 
 </p>
-
+If the reactant metabolite information is not present in the Park dataset, we assume that the irreversible rate is Vmax (so multiplied the rate from Case 1 by 1). </br>
+</p>
 """
 
 # ╔═╡ 99153bf2-a62d-4652-ac20-dd3ca3a78020
@@ -414,7 +410,11 @@ begin
 	# setup flux bounds array -
 	flux_bounds_array_case2 = zeros(ℛ,2)
 	flux_bounds_array_case2[:,2] .= 100.0 # default value is 100 for flux units: μmol/gDW-s
+
+	# Multiplied by metabolite correction factor (which is 0.913764)
 	flux_bounds_array_case2[1,2] = 203.0*E[1]*0.913764
+
+	# Multiplied by metabolite correction factor (which is 1)
 	flux_bounds_array_case2[2,2] = 34.5*E[2]
 	flux_bounds_array_case2[3,2] = 249.0*E[3]
 	flux_bounds_array_case2[4,2] = 88.1*E[4]
